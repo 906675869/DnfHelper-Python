@@ -87,7 +87,7 @@ class Auto:
 
                 # 进入副本
                 if cls.map_data.get_stat() == 2:
-                    cls.enter_map(init.global_data.map_id, init.global_data.map_level)
+                    cls.enter_map(init.global_data.map_id, init.global_data.map_level,0)
                     continue
 
                 # 在地图内
@@ -111,6 +111,7 @@ class Auto:
                     if cls.map_data.is_open_door() is True and cls.map_data.is_boss_room() is False:
                         # 捡物品
                         cls.pick.pickup()
+                        time.sleep(1)
                         # 过图
                         cls.pass_map()
                         continue
@@ -197,8 +198,8 @@ class Auto:
                 cls.return_role()
                 logger.info("普通地图或者英豪地图需要配置")
                 return
-            random_number = random.randint(0, len(map_ids) - 1)
-            init.global_data.map_id = map_ids[random_number]
+            # random_number = random.randint(0, len(map_ids) - 1)
+            init.global_data.map_id = map_ids[0]
             init.global_data.map_level = config().getint("自动配置", "地图难度")
         if init.global_data.map_id == 0:
             logger.info("地图编号为空,无法切换区域", 2)
@@ -233,33 +234,27 @@ class Auto:
                 break
 
     @classmethod
-    def enter_map(cls, map_id: int, map_level: int):
+    def enter_map(cls, map_id: int, map_level: int, retry: int):
         """进图"""
-        if map_level == 5:
-            for i in range(4, -1, -1):
-                # 进图副本跳出循环
-                if cls.map_data.get_stat() == 3:
-                    break
-                if cls.map_data.get_stat() == 2:
-                    cls.pack.go_map(map_id, i, 0, 0)
-                    time.sleep(1)
-                if cls.map_data.get_stat() == 1:
-                    cls.select_map()
+        if map_level == 5 and retry == 0:
             # 按名望区间选图
+            fame = cls.map_data.get_fame()
+            if fame > 33989 or fame in range(23259, 25837):
+                map_level = 4
+            elif fame > 32523 or fame in range(21675, 23259):
+                map_level = 3
+            elif fame > 30946 or fame in range(13195, 21675):
+                map_level = 2
+            elif fame > 29369 or fame in range(80602, 13195):
+                map_level = 1
+            else:
+                map_level = 0
+            cls.pack.go_map(map_id, map_level, 0, 0)
+            time.sleep(0.3)
             if cls.map_data.get_stat() == 2:
-                fame = cls.map_data.get_fame()
-                if fame > 33989 or fame in range(23259, 25837):
-                    map_level = 4
-                elif fame > 32523 or fame in range(21675, 23259):
-                    map_level = 3
-                elif fame > 30946 or fame in range(13195, 21675):
-                    map_level = 2
-                elif fame > 29369 or fame in range(80602, 13195):
-                    map_level = 1
-                else:
-                    map_level = 0
-                cls.pack.go_map(map_id, map_level, 0, 0)
-                time.sleep(1)
+                cls.enter_map(map_id, map_level, retry + 1)
+        elif retry != 0:
+            cls.pack.go_map(map_id, map_level - retry, 0, 0)
         else:
             cls.pack.go_map(map_id, map_level, 0, 0)
 
@@ -281,10 +276,16 @@ class Auto:
             map_data = cls.game_map.map_data()
             if len(map_data.map_route) >= 2:
                 direction = cls.game_map.get_direction(map_data.map_route[0], map_data.map_route[1])
+                # 获取当前房间坐标
+                preview_room  = cls.map_data.get_cut_room()
                 if over_map == 1:
                     call.over_map_call(direction)
                 if over_map == 2:
                     call.drift_over_map(direction)
+                time.sleep(0.5)
+                cut_room = cls.map_data.get_cut_room()
+                if cut_room.x == preview_room.x and cut_room.y == preview_room.y:
+                    time.sleep(3)
 
     @classmethod
     def quit_map(cls):
