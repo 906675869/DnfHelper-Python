@@ -153,7 +153,7 @@ class Auto:
         """进入城镇"""
         role_num = config().getint("自动配置", "角色数量")
         init.global_data.completed_role = init.global_data.completed_role + 1
-        if init.global_data.completed_role > role_num:
+        if init.global_data.completed_role >= role_num:
             logger.info("指定角色完成所有角色", 2)
             logger.info("自动刷图 [ x ]", 2)
             cls.thread_switch = False
@@ -189,15 +189,17 @@ class Auto:
             init.global_data.map_id = cls.task.handle_main()
             init.global_data.map_level = 0
         if auto_model == 2 and cls.map_data.get_role_level() == 110:
-            if cls.map_data.get_fame() < 23330:
+            if cls.map_data.get_fame() < 25837:
                 map_ids = list(map(int, config().get("自动配置", "普通地图").split(",")))
             else:
                 map_ids = list(map(int, config().get("自动配置", "英豪地图").split(",")))
-
+            if len(map_ids) == 0:
+                cls.return_role()
+                logger.info("普通地图或者英豪地图需要配置")
+                return
             random_number = random.randint(0, len(map_ids) - 1)
             init.global_data.map_id = map_ids[random_number]
             init.global_data.map_level = config().getint("自动配置", "地图难度")
-
         if init.global_data.map_id == 0:
             logger.info("地图编号为空,无法切换区域", 2)
             return
@@ -235,6 +237,7 @@ class Auto:
         """进图"""
         if map_level == 5:
             for i in range(4, -1, -1):
+                # 进图副本跳出循环
                 if cls.map_data.get_stat() == 3:
                     break
                 if cls.map_data.get_stat() == 2:
@@ -242,6 +245,21 @@ class Auto:
                     time.sleep(1)
                 if cls.map_data.get_stat() == 1:
                     cls.select_map()
+            # 按名望区间选图
+            if cls.map_data.get_stat() == 2:
+                fame = cls.map_data.get_fame()
+                if fame > 33989 or fame in range(23259, 25837):
+                    map_level = 4
+                elif fame > 32523 or fame in range(21675, 23259):
+                    map_level = 3
+                elif fame > 30946 or fame in range(13195, 21675):
+                    map_level = 2
+                elif fame > 29369 or fame in range(80602, 13195):
+                    map_level = 1
+                else:
+                    map_level = 0
+                cls.pack.go_map(map_id, map_level, 0, 0)
+                time.sleep(1)
         else:
             cls.pack.go_map(map_id, map_level, 0, 0)
 
