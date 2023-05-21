@@ -2,8 +2,9 @@ import _thread
 import random
 import time
 
-from common import logger, config
+from common import logger, config, helper
 from game import init, call, address
+from game.skill import Skill_Arr
 
 
 class Screen:
@@ -78,7 +79,6 @@ class Screen:
         map_obj = init.map_data
         if map_obj.get_stat() != 3:
             return
-
         rw_addr = call.person_ptr()
         map_data = mem.read_long(mem.read_long(rw_addr + address.DtPyAddr) + 16)
         start = mem.read_long(map_data + address.DtKs2)
@@ -93,12 +93,19 @@ class Screen:
                     obj_camp = mem.read_int(obj_ptr + address.ZyPyAddr)
                     obj_code = mem.read_int(obj_ptr + address.DmPyAddr)
                     obj_blood = mem.read_long(obj_ptr + address.GwXlAddr)
+
                     if obj_camp > 0 and obj_ptr != rw_addr:
                         monster = map_obj.read_coordinate(obj_ptr)
                         if obj_blood > 0:
+                            # goods_name_byte = mem.read_bytes(mem.read_long(mem.read_int(obj_ptr + address.DmPyAddr) + address.McPyAddr), 100)
+                            # if goods_name_byte is not None and len(goods_name_byte) > 0:
+                            #     obj_type_b_name = helper.unicode_to_ascii(list(goods_name_byte))
+                            #     logger.info("存在怪物[{}]-[{}]".format(obj_code, obj_type_b_name), 0)
                             call.drift_call(rw_addr, monster.x, monster.y, 0, 2)
                             time.sleep(0.2)
-                            call.skill_call(rw_addr, 70231, random.randint(50000, 99999), monster.x, monster.y, 0, 1.0)
+                            # helper.key_press_release('x')
+                            call.skill_call(rw_addr, random.choice(Skill_Arr), random.randint(50000, 99999),
+                                            monster.x, monster.y, 0, 1.0)
 
     def ignore_building(self, ok: bool):
         """无视建筑"""

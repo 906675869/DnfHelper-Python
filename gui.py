@@ -31,8 +31,8 @@ version = '1.0.0'
 class AppWindow(XWindow):
 
     def __init__(self):
-        super(AppWindow, self).__init__(0, 0, 302, 400, "", 0, gui.window_style_modal)
-        self.setTitle("情歌 √ Lang [ Python ]")
+        super(AppWindow, self).__init__(0, 0, 402, 300, "", 0, gui.window_style_modal)
+        self.setTitle("轩渃 √ ")
         # 关闭窗口事件
         self.regEvent(16, self.close_win)
         # 线程开关
@@ -48,9 +48,8 @@ class AppWindow(XWindow):
         self.setBorderSize(0, 30, 0, 0)
         # 设置窗口置顶
         # self.setTop()
-
-        XShapeText(0, 35, 60, 30, "卡号:", self)
-        self.card_edit = XEdit(35, 35, 200, 30, self)
+        # XShapeText(0, 35, 60, 30, "卡号:", self)
+        self.card_edit = XEdit(60, 35, 200, 30, self)
         self.card_edit.setText("19930921")
         self.card_edit.enablePassword(True)
         self.card_edit.setTextAlign(gui.edit_textAlign_flag_center)
@@ -58,7 +57,16 @@ class AppWindow(XWindow):
         self.activation_but = XButton(244, 35, 50, 30, "激活", self)
         self.activation_but.regEvent(gui.XE_BNCLICK, self.activation)
 
-        self.func_content = XEdit(1, 70, 300, 100, self)
+        self.start_but = XButton(1, 70, 50, 30, '开始', self)
+        self.start_but.regEvent(gui.XE_BNCLICK, self.switch_on)
+        self.start_but.enable(False)
+        self.stop_but = XButton(1, 105, 50, 30, '暂停', self)
+        self.stop_but.regEvent(gui.XE_BNCLICK, self.switch_off)
+        self.stop_but.enable(False)
+        self.end_but = XButton(1, 140, 50, 30, '停止', self)
+        self.end_but.regEvent(gui.XE_BNCLICK, self.close_win)
+        self.end_but.enable(False)
+        self.func_content = XEdit(60, 70, 300, 100, self)
         self.func_content.enableMultiLine(True)
         self.func_content.enableReadOnly(True)
         self.func_content.autoScroll()
@@ -66,7 +74,7 @@ class AppWindow(XWindow):
         # self.func_content.showSBarH(True)
         self.func_content.scrollBottom()
 
-        self.edit_content = XEdit(1, 175, 300, 200, self)
+        self.edit_content = XEdit(60, 175, 300, 100, self)
         self.edit_content.enableMultiLine(True)
         self.edit_content.enableReadOnly(True)
         self.edit_content.autoScroll()
@@ -74,16 +82,15 @@ class AppWindow(XWindow):
         # self.edit_content.showSBarH(True)
         self.edit_content.scrollBottom()
 
-        self.run_time_label = XShapeText(1, 375, 60, 30, "运行时间:", self)
-        self.run_time_value = XShapeText(56, 375, 60, 30, "00:00:00", self)
+        self.run_time_label = XShapeText(1, 275, 60, 30, "运行时间:", self)
+        self.run_time_value = XShapeText(56, 275, 60, 30, "00:00:00", self)
         _thread.start_new_thread(self.app_run_time, ())
 
-        self.version_label = XShapeText(220, 375, 60, 30, "版本号:", self)
-        self.version_value = XShapeText(260, 375, 60, 30, version, self)
+        self.version_label = XShapeText(220, 275, 60, 30, "版本号:", self)
+        self.version_value = XShapeText(260, 275, 60, 30, version, self)
 
     def close_win(self, event, userdata) -> bool:
         self.run = False
-        print('推出')
         self.closeWindow()
         return False
 
@@ -102,7 +109,20 @@ class AppWindow(XWindow):
         self.add_edit_content("当前时间：{}".format(helper.get_now_date()))
 
         self.activation_but.enable(False)
+        self.start_but.enable(True)
         init.hotkey()
+        return True
+
+    def switch_on(self) -> bool:
+        init.auto.switch_on()
+        self.start_but.enable(False)
+        self.end_but.enable(True)
+        return True
+
+    def switch_off(self) -> bool:
+        init.auto.switch_off()
+        self.start_but.enable(True)
+        self.end_but.enable(False)
         return True
 
     def app_run_time(self):
@@ -114,7 +134,7 @@ class AppWindow(XWindow):
     def title_time(self):
         while self.run:
             time.sleep(1)
-            self.setTitle("情歌 √ 当前时间 {}".format(helper.get_now_date()))
+            self.setTitle("轩渃√ 当前时间 {}".format(helper.get_now_date()))
             self.redraw()
 
     def add_edit_content(self, msg):

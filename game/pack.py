@@ -66,8 +66,8 @@ class Pack:
     @classmethod
     def select_role(cls, index):
         """组包选择角色"""
-        if index == 0:
-            return
+        # if index == 0:
+        #     return
         cls.hc_call(4)
         cls.jm_call(index, 2)
         cls.fb_call()

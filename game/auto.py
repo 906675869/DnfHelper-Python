@@ -68,6 +68,13 @@ class Auto:
         logger.info("自动刷图 [ x ]", 1)
 
     @classmethod
+    def switch_on(cls):
+        init.global_data.auto_switch = True
+        cls.thread_switch = True
+        cls.threadHande = _thread.start_new_thread(cls.auto_thread, ())
+        logger.info("自动刷图  [ √ ]", 1)
+
+    @classmethod
     def auto_thread(cls):
         """自动线程"""
         while cls.thread_switch:
@@ -160,21 +167,26 @@ class Auto:
     @classmethod
     def enter_town(cls):
         """进入城镇"""
-        role_num = config().getint("自动配置", "角色数量")
-        init.global_data.completed_role = init.global_data.completed_role + 1
-        if init.global_data.completed_role >= role_num:
-            logger.info("指定角色完成所有角色", 2)
-            logger.info("自动刷图 [ x ]", 2)
-            cls.thread_switch = False
-            init.global_data.auto_switch = False
+        # 获取普通角色总数
+        init.global_data.role_count = mem.read_int(mem.read_long(address.JSPtrAddr) + address.PtJsCntAddr)
+        role_count = init.global_data.role_count
+        if role_count == 0:
+            cls.switch_off()
             return
-
+        role_num = config().getint("自动配置", "角色数量")
+        role_num = role_num if role_num < role_count else role_count
+        if init.global_data.completed_role + 1 > role_num:
+            logger.info("指定角色完成所有角色", 2)
+            cls.switch_off()
+            return
         time.sleep(0.2)
         cls.pack.select_role(init.global_data.completed_role)
+        # to check
         time.sleep(0.5)
-        logger.info("进入角色 {} ".format(init.global_data.completed_role), 2)
+        logger.info("进入角色 {} ".format(init.global_data.completed_role + 1), 2)
         logger.info("开始第 {} 个角色,剩余疲劳 {}".format(init.global_data.completed_role + 1, cls.map_data.get_pl()),
                     2)
+        init.global_data.completed_role = init.global_data.completed_role + 1
         while cls.thread_switch:
             time.sleep(0.2)
             # 进入城镇跳出循环
@@ -245,7 +257,6 @@ class Auto:
     @classmethod
     def enter_map(cls, map_id: int, map_level: int, retry: int):
         """进图"""
-        logger.info("准备进入地图[{}][{}], 当前第{}次尝试进图".format(map_id, cls.map_level_constants[map_level], retry), 0)
         if retry != 0:
             map_level = map_level - 1 if map_level < 5 else 3
             if map_level < 0:
@@ -267,6 +278,7 @@ class Auto:
                 map_level = 1
             else:
                 map_level = 0
+            logger.info("准备进入地图[{}][{}], 当前第{}次尝试进图".format(map_id, cls.map_level_constants[map_level], retry), 0)
             cls.pack.go_map(map_id, map_level, 0, 0)
             time.sleep(0.3)
             if cls.map_data.get_stat() == 2:

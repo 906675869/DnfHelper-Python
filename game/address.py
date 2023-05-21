@@ -119,3 +119,4 @@ JnlPyAddr = 0x90  # 技能栏偏移
 JnMcAddr = 0xB0  # 技能名称
 JnDjAddr = 0x19BC  # 技能等级
 JnSxDj1Addr = 0x2AC  # 技能上限等级1
+PtJsCntAddr = 0x2B8  #.常量 普通角色数量,696,,  2B8
