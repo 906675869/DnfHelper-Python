@@ -1,14 +1,13 @@
 from pymem import Pymem
 
-from common import logger
-from game.init import auto
-from game import init
+# from common import logger
 
 
 def close_thread():
-    init.global_data.auto_switch = False
-    auto.thread_switch = False
-    logger.info("自动刷图 [ x ]", 1)
+    pass
+    # init.global_data.auto_switch = False
+    # auto.thread_switch = False
+    # logger.info("自动刷图 [ x ]", 1)
 
 
 class Memory:

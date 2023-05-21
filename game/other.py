@@ -77,3 +77,4 @@ class Equip:
                     continue
         self.pack.tidy_backpack(1, 0)
         logger.info("处理装备 {} 件".format(num), 1)
+        return num

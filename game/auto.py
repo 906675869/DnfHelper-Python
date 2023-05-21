@@ -36,6 +36,8 @@ class Auto:
 
     game_map = None
 
+    map_level_constants = ['普通', '冒险', '勇士', '王者', '噩梦']
+
     @classmethod
     def __init__(cls, task, traversal, map_data, pack, pick, equip, game_map):
         cls.task = task
@@ -58,6 +60,12 @@ class Auto:
             init.global_data.auto_switch = False
             cls.thread_switch = False
             logger.info("自动刷图 [ x ]", 1)
+
+    @classmethod
+    def switch_off(cls):
+        init.global_data.auto_switch = False
+        cls.thread_switch = False
+        logger.info("自动刷图 [ x ]", 1)
 
     @classmethod
     def auto_thread(cls):
@@ -87,7 +95,7 @@ class Auto:
 
                 # 进入副本
                 if cls.map_data.get_stat() == 2:
-                    cls.enter_map(init.global_data.map_id, init.global_data.map_level,0)
+                    cls.enter_map(init.global_data.map_id, init.global_data.map_level, 0)
                     continue
 
                 # 在地图内
@@ -186,23 +194,24 @@ class Auto:
 
         # 1 剧情 2 搬砖
         auto_model = config().getint("自动配置", "自动模式")
-        if auto_model == 1 and cls.map_data.get_role_level() < 110:
+        if cls.map_data.get_role_level() < 110:
             init.global_data.map_id = cls.task.handle_main()
             init.global_data.map_level = 0
-        if auto_model == 2 and cls.map_data.get_role_level() == 110:
+        elif auto_model == 2 and cls.map_data.get_role_level() == 110:
             if cls.map_data.get_fame() < 25837:
                 map_ids = list(map(int, config().get("自动配置", "普通地图").split(",")))
             else:
                 map_ids = list(map(int, config().get("自动配置", "英豪地图").split(",")))
             if len(map_ids) == 0:
                 cls.return_role()
-                logger.info("普通地图或者英豪地图需要配置")
+                logger.info("普通地图或者英豪地图需要配置", 0)
                 return
             # random_number = random.randint(0, len(map_ids) - 1)
             init.global_data.map_id = map_ids[0]
             init.global_data.map_level = config().getint("自动配置", "地图难度")
         if init.global_data.map_id == 0:
             logger.info("地图编号为空,无法切换区域", 2)
+            cls.switch_off()
             return
 
         time.sleep(0.2)
@@ -236,6 +245,15 @@ class Auto:
     @classmethod
     def enter_map(cls, map_id: int, map_level: int, retry: int):
         """进图"""
+        logger.info("准备进入地图[{}][{}], 当前第{}次尝试进图".format(map_id, cls.map_level_constants[map_level], retry), 0)
+        if retry != 0:
+            map_level = map_level - 1 if map_level < 5 else 3
+            if map_level < 0:
+                cls.switch_off()
+                logger.info("重试调整地图等级失败，中断当前线程", 0)
+                return
+            logger.info("进入地图失败，调整当前地图等级={}".format(cls.map_level_constants[map_level]), 0)
+            cls.pack.go_map(map_id, map_level, 0, 0)
         if map_level == 5 and retry == 0:
             # 按名望区间选图
             fame = cls.map_data.get_fame()
@@ -253,8 +271,6 @@ class Auto:
             time.sleep(0.3)
             if cls.map_data.get_stat() == 2:
                 cls.enter_map(map_id, map_level, retry + 1)
-        elif retry != 0:
-            cls.pack.go_map(map_id, map_level - retry, 0, 0)
         else:
             cls.pack.go_map(map_id, map_level, 0, 0)
 
@@ -277,12 +293,12 @@ class Auto:
             if len(map_data.map_route) >= 2:
                 direction = cls.game_map.get_direction(map_data.map_route[0], map_data.map_route[1])
                 # 获取当前房间坐标
-                preview_room  = cls.map_data.get_cut_room()
+                preview_room = cls.map_data.get_cut_room()
                 if over_map == 1:
                     call.over_map_call(direction)
                 if over_map == 2:
                     call.drift_over_map(direction)
-                time.sleep(0.5)
+                time.sleep(0.3)
                 cut_room = cls.map_data.get_cut_room()
                 if cut_room.x == preview_room.x and cut_room.y == preview_room.y:
                     time.sleep(3)
