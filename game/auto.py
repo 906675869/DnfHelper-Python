@@ -111,7 +111,7 @@ class Auto:
                         # 透明call
                         call.hide_call(call.person_ptr())
                         # sss评分
-                        mem.write_long(mem.read_long(address.PFAddr) + address.CEPfAddr, 999999)
+                        # mem.write_long(mem.read_long(address.PFAddr) + 272, 999999)
                         # 无视建筑
                         # cls.traversal.ignore_building(True)
                         # 进图开启功能
@@ -280,7 +280,7 @@ class Auto:
                 map_level = 0
             logger.info("准备进入地图[{}][{}], 当前第{}次尝试进图".format(map_id, cls.map_level_constants[map_level], retry), 0)
             cls.pack.go_map(map_id, map_level, 0, 0)
-            time.sleep(0.3)
+            time.sleep(0.8)
             if cls.map_data.get_stat() == 2:
                 cls.enter_map(map_id, map_level, retry + 1)
         else:

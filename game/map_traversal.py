@@ -93,17 +93,17 @@ class Screen:
                     obj_camp = mem.read_int(obj_ptr + address.ZyPyAddr)
                     obj_code = mem.read_int(obj_ptr + address.DmPyAddr)
                     obj_blood = mem.read_long(obj_ptr + address.GwXlAddr)
-
+                    skill_arr = ['a', 's', 'd', 'f', 'g', 'h', 'q', 'w', 'e', 'r']
+                    jx_skill_arr = ['ctrl', 't', 'y']
                     if obj_camp > 0 and obj_ptr != rw_addr:
                         monster = map_obj.read_coordinate(obj_ptr)
                         if obj_blood > 0:
-                            # goods_name_byte = mem.read_bytes(mem.read_long(mem.read_int(obj_ptr + address.DmPyAddr) + address.McPyAddr), 100)
-                            # if goods_name_byte is not None and len(goods_name_byte) > 0:
-                            #     obj_type_b_name = helper.unicode_to_ascii(list(goods_name_byte))
-                            #     logger.info("存在怪物[{}]-[{}]".format(obj_code, obj_type_b_name), 0)
                             call.drift_call(rw_addr, monster.x, monster.y, 0, 2)
                             time.sleep(0.2)
-                            # helper.key_press_release('x')
+                            if init.map_data.is_boss_room():
+                                for x in jx_skill_arr:
+                                    helper.key_press_release(x)
+                            helper.key_press_release(random.choice(skill_arr))
                             call.skill_call(rw_addr, random.choice(Skill_Arr), random.randint(50000, 99999),
                                             monster.x, monster.y, 0, 1.0)
 
