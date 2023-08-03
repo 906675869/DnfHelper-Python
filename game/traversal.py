@@ -104,6 +104,7 @@ class Screen:
                                 if title == "地下城与勇士：创新世纪":
                                     keys = skill.pick_key()
                                     helper.key_press(keys, 0.3)
+                                    call.skill_call(rw_addr, 70231, 99999, monster.x, monster.y, 0, 1.0)
                             if config().getint("自动配置", "跟随打怪") == 3:
                                 call.skill_call(rw_addr, 70231, 99999, monster.x, monster.y, 0, 1.0)
 

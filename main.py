@@ -9,8 +9,8 @@ from plugins.driver import init_driver
 if __name__ == '__main__':
     try:
         globle.cmd = "cmd"
-        init_driver("TPqd640")
-        logger.info("驱动加载成功", 1)
+        #init_driver("TPqd640")
+        #logger.info("驱动加载成功", 1)
         process_id = helper.get_process_id_by_name("DNF.exe")
         if process_id == 0:
             helper.message_box("请打开dnf后运行")
