@@ -117,6 +117,14 @@ class Pack:
         cls.fb_call()
 
     @classmethod
+    def again_map(cls):
+        cls.hc_call(72)
+        cls.jm_call(1, 1)
+        cls.jm_call(0, 1)
+        cls.jm_call(1, 1)
+        cls.fb_call()
+
+    @classmethod
     def move_map(cls, max_map, mix_map, x, y):
         """组包移动"""
         if max_map < 0 or mix_map < 0 or x < 0 or y < 0:

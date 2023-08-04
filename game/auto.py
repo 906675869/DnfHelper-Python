@@ -289,6 +289,10 @@ class Auto:
         while cls.thread_switch:
             time.sleep(0.2)
             # 出图
-            cls.pack.leave_map()
+            r = random.randint(0, 3)
+            if r == 1:
+                cls.pack.leave_map()
+            else:
+                cls.pack.again_map()
             if cls.map_data.get_stat() == 1 or cls.map_data.is_town():
                 break
