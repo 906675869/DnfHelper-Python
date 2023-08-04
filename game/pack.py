@@ -118,6 +118,7 @@ class Pack:
 
     @classmethod
     def again_map(cls):
+        """组包再次挑战"""
         cls.hc_call(72)
         cls.jm_call(1, 1)
         cls.jm_call(0, 1)

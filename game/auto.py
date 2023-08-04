@@ -96,7 +96,7 @@ class Auto:
                 if cls.map_data.get_stat() == 3:
                     if cls.firstEnterMap is False and cls.map_data.is_town() is False:
                         # 透明call
-                        call.hide_call(call.person_ptr())
+                        # call.hide_call(call.person_ptr())
                         # sss评分
                         sss_score = random.randint(5201314, 9999999)
                         mem.write_long(mem.read_long(address.PFAddr) + address.CEPfAddr, sss_score)
