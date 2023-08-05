@@ -151,8 +151,6 @@ class Screen:
         self.mem.write_int(rd_addr + address.FdbgAddr, x)
         logger.info("浮点伤害 [ x ]", 1)
 
-
-
     def go_dest(self, x: int, y: int):
         # mem = self.mem
         map_obj = init.map_data
