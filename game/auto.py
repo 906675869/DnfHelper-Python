@@ -247,8 +247,8 @@ class Auto:
                 if cls.map_data.get_stat() == 3:
                     break
                 if cls.map_data.get_stat() == 2:
-                    cls.pack.go_map(map_id, i, 0, 0)
                     time.sleep(1)
+                    cls.pack.go_map(map_id, i, 0, 0)
                 if cls.map_data.get_stat() == 1:
                     cls.select_map()
         else:

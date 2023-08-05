@@ -16,9 +16,10 @@ from game import skill
 
 class Screen:
 
-    def __init__(self, mem):
+    def __init__(self, mem, sk: skill.Skill):
         self.thread = None
         self._switch = False
+        self.skill = sk
         self.mem = mem
         self.hook_harm_switch = False
         self.hook_harm_origin_bytes = None
@@ -115,7 +116,7 @@ class Screen:
                             if config().getint("自动配置", "跟随打怪") == 2:
                                 title = helper.get_process_name()
                                 if title == "地下城与勇士：创新世纪":
-                                    keys = skill.pick_key()
+                                    keys = self.skill.pick_key()
                                     helper.key_press(keys, 0.03)
                                     # call.skill_call(rw_addr, 70231, 99999, monster.x, monster.y, 0, 1.0)
                             if config().getint("自动配置", "跟随打怪") == 3:
