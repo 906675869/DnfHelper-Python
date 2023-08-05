@@ -38,6 +38,8 @@ class Auto:
 
     game_map = None
 
+
+
     @classmethod
     def __init__(cls, task, traversal, map_data, pack, pick, equip, game_map):
         cls.task = task
@@ -96,14 +98,14 @@ class Auto:
                 if cls.map_data.get_stat() == 3:
                     if cls.firstEnterMap is False and cls.map_data.is_town() is False:
                         # 透明call
-                        # call.hide_call(call.person_ptr())
+                        ## call.hide_call(call.person_ptr())
                         # sss评分
                         sss_score = random.randint(5201314, 9999999)
                         mem.write_long(mem.read_long(address.PFAddr) + address.CEPfAddr, sss_score)
                         # 无视建筑
-                        # cls.traversal.ignore_building(True)
+                        cls.traversal.ignore_building(True)
                         # 进图开启功能
-                        # cls.start_func()
+                        cls.start_func()
                         cls.firstEnterMap = True
 
                     # 跟随怪物
@@ -126,7 +128,7 @@ class Auto:
                             # 关闭功能
                             cls.start_func()
                             # 关闭穿透
-                            # cls.traversal.ignore_building(False)
+                            cls.traversal.ignore_building(False)
                             # 退出副本
                             cls.quit_map()
                             cls.firstEnterMap = False
@@ -145,7 +147,9 @@ class Auto:
     def start_func(cls):
         func_mod = config().getint("自动配置", "开启功能")
         if func_mod == 1:
-            print("功能1为实现")
+            #print("功能1为实现")
+            #cls.traversal.hook_harm()
+            cls.traversal.float_harm(50)
         if func_mod == 2:
             print("功能2为实现")
         if func_mod == 3:

@@ -2,10 +2,14 @@ import struct
 import time
 from datetime import datetime
 
-import keyboard
+# import keyboard
+
 import psutil
 import win32api
 import win32gui
+from pynput import keyboard
+
+control = keyboard.Controller()
 
 
 def get_process_name():
@@ -164,20 +168,29 @@ def unicode_to_ascii(ls: list) -> str:
 
 
 def key_press_release(key: str):
-    keyboard.press(key)
+    control.press(key)
     time.sleep(0.01)
-    keyboard.release(key)
+    control.release(key)
 
 
 def key_press_release_delay(key: str, delay: float):
-    keyboard.press(key)
+    control.press(key)
     time.sleep(delay)
-    keyboard.release(key)
+    control.release(key)
+
+
+def press(key: str):
+    control.press(key)
+
+
+def release(key: str):
+    control.release(key)
 
 
 def key_press(list_key: list, delay: float):
     for key in list_key:
         if delay > 0:
             key_press_release_delay(key, delay)
-            return
-        keyboard.press(key)
+            time.sleep(0.01)
+            continue
+        control.press(key)

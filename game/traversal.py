@@ -1,5 +1,9 @@
 import _thread
+import random
 import time
+
+# import keyboard
+from pynput.keyboard import Key
 
 from common import config, helper
 from common import logger
@@ -7,11 +11,17 @@ from game import call, init, address
 from game import skill
 
 
+# from pynput import Key
+
+
 class Screen:
+
     def __init__(self, mem):
         self.thread = None
         self._switch = False
         self.mem = mem
+        self.hook_harm_switch = False
+        self.hook_harm_origin_bytes = None
 
     def screen_switch(self):
         self._switch = not self._switch
@@ -97,16 +107,20 @@ class Screen:
                     if obj_camp > 0 and obj_ptr != rw_addr:
                         monster = map_obj.read_coordinate(obj_ptr)
                         if obj_blood > 0:
-                            call.drift_call(rw_addr, monster.x, monster.y, 0, 2)
-                            time.sleep(0.2)
+                            rw_coordinate = map_obj.read_coordinate(rw_addr)
+                            if abs(rw_coordinate.x - monster.x) > 60:
+                                # call.drift_call(rw_addr, monster.x, monster.y, 0, 2)
+                                self.go_dest(monster.x, monster.y)
+                            # time.sleep(0.2)
                             if config().getint("自动配置", "跟随打怪") == 2:
                                 title = helper.get_process_name()
                                 if title == "地下城与勇士：创新世纪":
                                     keys = skill.pick_key()
-                                    helper.key_press(keys, 0.3)
-                                    call.skill_call(rw_addr, 70231, 99999, monster.x, monster.y, 0, 1.0)
+                                    helper.key_press(keys, 0.03)
+                                    # call.skill_call(rw_addr, 70231, 99999, monster.x, monster.y, 0, 1.0)
                             if config().getint("自动配置", "跟随打怪") == 3:
                                 call.skill_call(rw_addr, 70231, 99999, monster.x, monster.y, 0, 1.0)
+                            break
 
     def ignore_building(self, ok: bool):
         """无视建筑"""
@@ -117,3 +131,95 @@ class Screen:
         else:
             self.mem.write_int(rd_addr + address.JzCtAddr, 40)
             self.mem.write_int(rd_addr + address.DtCtAddr, 10)
+
+    def hook_harm(self):
+        self.hook_harm_switch = not self.hook_harm_switch
+        if self.hook_harm_switch:
+            random_harm = random.randint(2000000, 3999999)
+            self.hook_harm_origin_bytes = self.mem.read_bytes(address.QjAddr, 10)
+            self.mem.write_bytes(address.QjAddr, helper.add_list([72, 190], helper.int_to_bytes(random_harm, 8)))
+            logger.info("hook伤害 [ √ ]", 1)
+        else:
+            if len(self.hook_harm_origin_bytes) > 0:
+                self.mem.write_bytes(address.QjAddr, self.hook_harm_origin_bytes)
+            logger.info("hook伤害 [ x ]", 1)
+
+    def float_harm(self, x: int):
+        if x == 0:
+            x = 20
+        rd_addr = call.person_ptr()
+        self.mem.write_int(rd_addr + address.FdbgAddr, x)
+        logger.info("浮点伤害 [ x ]", 1)
+
+
+
+    def go_dest(self, x: int, y: int):
+        # mem = self.mem
+        map_obj = init.map_data
+        if map_obj.get_stat() != 3:
+            return
+        rd_addr = call.person_ptr()
+        left = False
+        right = False
+        up = False
+        down = False
+        cnt = 0
+        while True:
+            cnt = cnt + 1
+            if cnt > 100:  ## 6s
+                helper.release(Key.left)
+                helper.release(Key.right)
+                helper.release(Key.up)
+                helper.release(Key.down)
+                break
+            rw_coordinate = map_obj.read_coordinate(rd_addr)
+            if x - 30 < rw_coordinate.x < x + 30 and y - 30 < rw_coordinate.y < y + 30:
+                helper.release(Key.left)
+                helper.release(Key.right)
+                helper.release(Key.up)
+                helper.release(Key.down)
+                break
+            if x - 30 < rw_coordinate.x < x + 30:
+                helper.release(Key.left)
+                helper.release(Key.right)
+                left = False
+                right = False
+            if y - 30 < rw_coordinate.y < y + 30:
+                helper.release(Key.up)
+                helper.release(Key.down)
+                up = False
+                down = False
+            if rw_coordinate.x > x + 30:
+                if right:
+                    helper.release(Key.right)
+                    right = False
+                helper.key_press_release(Key.left)
+                time.sleep(0.01)
+                helper.key_press_release(Key.left)
+                time.sleep(0.02)
+                helper.press(Key.left)
+                time.sleep((rw_coordinate.x - x) / 1163)
+                left = True
+            if rw_coordinate.x < x - 30:
+                if left:
+                    helper.release(Key.left)
+                    left = False
+                helper.key_press_release(Key.right)
+                time.sleep(0.01)
+                helper.key_press_release(Key.right)
+                time.sleep(0.01)
+                helper.press(Key.right)
+                time.sleep((x - rw_coordinate.x) / 1163)
+                right = True
+            if rw_coordinate.y > y + 30:
+                if down:
+                    helper.release(Key.down)
+                    down = False
+                helper.press(Key.up)
+                up = True
+            if rw_coordinate.y < y - 30:
+                if up:
+                    helper.release(Key.up)
+                    up = False
+                helper.press(Key.down)
+            time.sleep(0.03)

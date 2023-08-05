@@ -137,3 +137,7 @@ WplAddr = 0xF778  # 物品栏
 WplPyAddr = 0xA8  # 物品栏偏移
 JnlAddr = 0xF6F0  # 技能栏
 JnlPyAddr = 0x90  # 技能栏偏移
+
+
+QjAddr = 0x144218CFE # 全局基址
+FdbgAddr = 0x2088  #  浮点倍攻

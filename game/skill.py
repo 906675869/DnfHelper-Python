@@ -3,8 +3,8 @@ import time
 
 # 重新构建strings和weights
 # 后续可以读技能名称处理
-strings = ['z', 'x', 'c', 'v', 'a', 's', 'd', 'f', 'g', 'h', 'q', 'w', 'e', 'r', 't', 'y']
-weights = [5, 5, 1, 1, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+strings = ['z', 'x', 'x', 'v', 'a', 's', 'd', 'f', 'g', 'h', 'q', 'w', 'e', 'r', 't', 'y']
+weights = [1, 1, 1, 1, 3, 3, 3, 1, 1, 1, 3, 3, 3, 1, 1, 1]
 
 
 def pick_strings(keys, num_picks, weights):
@@ -46,4 +46,4 @@ if __name__ == '__main__':
     while True:
         picks = pick_key(5)
         time.sleep(0.5)
-        print(picks);
+        print(picks)
